@@ -47,6 +47,10 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Install Maven
         run: sudo apt-get update && sudo apt-get install -y maven
+      - name: Create JWT Key Files
+        run: |
+          echo "${{ secrets.JWT_PUBLIC_KEY }}" > src/main/resources/app.pub
+          echo "${{ secrets.JWT_PRIVATE_KEY }}" > src/main/resources/app.key
       - name: Run Tests
         run: mvn test
 
@@ -69,6 +73,10 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Install Maven
         run: sudo apt-get update && sudo apt-get install -y maven
+      - name: Create JWT Key Files
+        run: |
+          echo "${{ secrets.JWT_PUBLIC_KEY }}" > src/main/resources/app.pub
+          echo "${{ secrets.JWT_PRIVATE_KEY }}" > src/main/resources/app.key
       - name: OWASP Dependency-Check
         run: mvn org.owasp:dependency-check-maven:check -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
       - name: Upload Dependency-Check Report
@@ -92,6 +100,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Create JWT Key Files
+        run: |
+            echo "${{ secrets.JWT_PUBLIC_KEY }}" > src/main/resources/app.pub
+            echo "${{ secrets.JWT_PRIVATE_KEY }}" > src/main/resources/app.key
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
