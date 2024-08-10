@@ -1,10 +1,15 @@
+# Ignore the HELP.md file
 HELP.md
+
+# Ignore target directories
 target/
-.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Ignore Maven wrapper jar
+.mvn/wrapper/maven-wrapper.jar
+
+# STS (Spring Tool Suite) specific files
 .apt_generated
 .classpath
 .factorypath
@@ -13,14 +18,14 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
+# IntelliJ IDEA specific files
 .idea
 *.iws
 *.iml
 *.ipr
 .jpb
 
-### NetBeans ###
+# NetBeans specific files
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -30,12 +35,35 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# VS Code specific files
 .vscode/controller/
 
-### Third party ###
+# Third party files
 *.pdf
 
+# macOS specific files
+.DS_Store
 
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
+# Linux specific files
+*~
 
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.old
+
+# Application specific files
+.env
+.env.local
+.env.*.local
