@@ -1,6 +1,6 @@
 HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -18,6 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
+.jpb
 
 ### NetBeans ###
 /nbproject/private/
@@ -30,4 +31,11 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/controller/
+
+### Third party ###
+*.pdf
+
+
+
+
