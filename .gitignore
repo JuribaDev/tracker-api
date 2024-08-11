@@ -67,3 +67,7 @@ Desktop.ini
 .env
 .env.local
 .env.*.local
+
+# Security files
+src/main/resources/app.pub
+src/main/resources/app.key
