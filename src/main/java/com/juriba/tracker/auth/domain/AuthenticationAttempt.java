@@ -1,12 +1,12 @@
 package com.juriba.tracker.auth.domain;
 
+import com.juriba.tracker.auth.domain.event.AuthenticationAttemptedEvent;
 import com.juriba.tracker.common.domain.AggregateRoot;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -15,10 +15,9 @@ import java.time.Instant;
 @Entity
 @AllArgsConstructor
 @Data
+@Builder
 @NoArgsConstructor
 public class AuthenticationAttempt extends AggregateRoot {
-    @Id
-    private String id;
     private String email;
     private boolean successful;
     private Instant timestamp;
