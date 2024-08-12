@@ -7,7 +7,6 @@ import com.juriba.tracker.auth.infrastructure.AuthenticationAttemptRepository;
 import com.juriba.tracker.common.domain.EventPublisher;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
 
 @Component
 public class AuthenticationAttemptLoggerImpl implements AuthenticationAttemptLogger {
@@ -31,7 +30,7 @@ public class AuthenticationAttemptLoggerImpl implements AuthenticationAttemptLog
     }
 
     private void logAttempt(String email, boolean successful) {
-        AuthenticationAttempt attempt = new AuthenticationAttempt(UUID.randomUUID().toString(), email, successful);
+        AuthenticationAttempt attempt = new AuthenticationAttempt( email, successful);
         attemptRepository.save(attempt);
         attempt.getDomainEvents().forEach(eventPublisher::publish);
         attempt.clearDomainEvents();

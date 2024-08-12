@@ -8,6 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.security.auth.Subject;
+import java.security.Principal;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,14 +21,16 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User extends AggregateRoot implements UserDetails {
+public class User extends AggregateRoot implements UserDetails, Principal {
     @Column(unique = true, nullable = false)
     private String email;
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -40,10 +45,13 @@ public class User extends AggregateRoot implements UserDetails {
 
 
 
-    public User(String email, String password) {
+    public User(String name, String email, String password) {
         this.id = UUID.randomUUID().toString();
+        this.name = name;
         this.email = email;
         this.password = password;
+        this.createdAt = OffsetDateTime.now();
+        this.createdBy = this.id;
         registerEvent(new UserCreatedEvent(this));
     }
 
@@ -116,5 +124,15 @@ public class User extends AggregateRoot implements UserDetails {
     public void unlockAccount() {
         this.accountNonLocked = true;
         registerEvent(new UserAccountUnlockedEvent(this));
+    }
+
+    @Override
+    public String getName() {
+        return id;
+    }
+
+    @Override
+    public boolean implies(Subject subject) {
+        return Principal.super.implies(subject);
     }
 }

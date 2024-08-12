@@ -1,5 +1,9 @@
 package com.juriba.tracker.auth.infrastructure.security;
 
+import com.juriba.tracker.auth.domain.exception.UnauthorizedException;
+import com.juriba.tracker.auth.infrastructure.config.SecurityPathConfig;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,19 +24,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtDecoder jwtDecoder;
     private final UserDetailsService userDetailsService;
+    private final SecurityPathConfig securityPathConfig;
 
-    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, UserDetailsService userDetailsService, SecurityPathConfig securityPathConfig) {
         this.jwtDecoder = jwtDecoder;
         this.userDetailsService = userDetailsService;
+        this.securityPathConfig = securityPathConfig;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected boolean shouldNotFilter(@NotNull HttpServletRequest request) {
+        return securityPathConfig.publicPathsMatcher().matches(request);
+    }
+
+    @Override
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
-
-            if (jwt != null && jwtDecoder.decode(jwt) != null) {
+            if (jwtDecoder.decode(jwt) != null) {
                 String email = jwtDecoder.decode(jwt).getSubject();
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -44,8 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
+            SecurityContextHolder.clearContext();
+            throw new UnauthorizedException("Unauthorized", ex);
         }
-
         filterChain.doFilter(request, response);
     }
 
@@ -54,6 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        return null;
+        throw new AuthenticationCredentialsNotFoundException("Authorization header is missing or invalid");
     }
 }

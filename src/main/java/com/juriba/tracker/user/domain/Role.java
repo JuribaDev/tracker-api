@@ -9,8 +9,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "roles")
@@ -24,7 +26,10 @@ public class Role extends AggregateRoot {
     private final Set<User> users = new HashSet<>();
 
     public Role(String name) {
+        this.id = UUID.randomUUID().toString();
         this.name = name;
+        this.createdAt = OffsetDateTime.now();
+        this.createdBy = this.id;
         registerEvent(new RoleCreatedEvent(this));
     }
 

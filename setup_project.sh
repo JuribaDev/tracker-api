@@ -29,30 +29,6 @@ echo "Generating RSA keys for JWT..."
 openssl genrsa -out src/main/resources/app.key 2048
 openssl rsa -in src/main/resources/app.key -pubout -out src/main/resources/app.pub
 
-echo "Creating application.properties..."
-cat << EOF > src/main/resources/application.properties
-# Server configuration
-server.port=8080
-
-# JWT configuration
-jwt.public.key=classpath:app.pub
-jwt.private.key=classpath:app.key
-
-# Database configuration (update as needed)
-spring.datasource.url=jdbc:h2:mem:testdb
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=password
-spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-
-# JPA configuration
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-# Logging configuration
-logging.level.org.springframework.security=DEBUG
-EOF
-
 echo "Application setup complete!"
 
 echo "Updating .gitignore..."

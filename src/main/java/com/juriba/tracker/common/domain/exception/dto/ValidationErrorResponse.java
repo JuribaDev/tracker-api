@@ -1,12 +1,16 @@
 package com.juriba.tracker.common.domain.exception.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
 
+@Getter
 @EqualsAndHashCode(callSuper = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ValidationErrorResponse extends ErrorResponse{
     private final Map<String, String> errors;
 
