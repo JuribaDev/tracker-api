@@ -1,6 +1,6 @@
 package com.juriba.tracker.auth.application.imp;
 
-import com.juriba.tracker.auth.application.AuthenticationAttemptLogger;
+import com.juriba.tracker.auth.application.LogAuthenticationAttemptUseCase;
 import com.juriba.tracker.auth.infrastructure.security.imp.JwtTokenProviderImp;
 import com.juriba.tracker.auth.presentation.AuthResponse;
 import com.juriba.tracker.auth.presentation.LoginRequest;
@@ -29,10 +29,10 @@ class AuthServiceImplTest {
     private JwtTokenProviderImp jwtTokenProvider;
 
     @Mock
-    private AuthenticationAttemptLogger authenticationAttemptLogger;
+    private LogAuthenticationAttemptUseCase logAuthenticationAttemptUseCase;
 
     @InjectMocks
-    private LoginUseCase authService;
+    private LoginUseCaseImp loginUseCaseImp;
 
     @Test
     void authenticateSuccessful() {
@@ -48,13 +48,13 @@ class AuthServiceImplTest {
         when(jwtTokenProvider.getRefreshTokenExpiration()).thenReturn(Instant.now().plusSeconds(86400));
 
         // Act
-        AuthResponse response = authService.execute(loginRequest);
+        AuthResponse response = loginUseCaseImp.execute(loginRequest);
 
         // Assert
         assertNotNull(response);
         assertEquals("access_token", response.accessToken());
         assertEquals("refresh_token", response.refreshToken());
-        verify(authenticationAttemptLogger).logSuccessfulAttempt(email);
+        verify(logAuthenticationAttemptUseCase).execute(email, true);
     }
 
     @Test
@@ -66,7 +66,8 @@ class AuthServiceImplTest {
         when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("Bad credentials"));
 
         // Act/Assert
-        assertThrows(BadCredentialsException.class, () -> authService.execute(loginRequest));
-        verify(authenticationAttemptLogger).logFailedAttempt(email);
+        assertThrows(BadCredentialsException.class, () -> loginUseCaseImp.execute(loginRequest));
+        verify(logAuthenticationAttemptUseCase).execute(email,false);
     }
+
 }
