@@ -1,7 +1,7 @@
 package com.juriba.tracker.common.application;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public interface DomainEvent {
-    LocalDateTime occurredOn();
+    OffsetDateTime occurredOn();
 }

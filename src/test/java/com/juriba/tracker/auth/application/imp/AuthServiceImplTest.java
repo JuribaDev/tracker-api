@@ -1,8 +1,9 @@
 package com.juriba.tracker.auth.application.imp;
 
 import com.juriba.tracker.auth.application.AuthenticationAttemptLogger;
-import com.juriba.tracker.auth.infrastructure.security.JwtTokenProvider;
+import com.juriba.tracker.auth.infrastructure.security.imp.JwtTokenProviderImp;
 import com.juriba.tracker.auth.presentation.AuthResponse;
+import com.juriba.tracker.auth.presentation.LoginRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,19 +26,20 @@ class AuthServiceImplTest {
     private AuthenticationManager authenticationManager;
 
     @Mock
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtTokenProviderImp jwtTokenProvider;
 
     @Mock
     private AuthenticationAttemptLogger authenticationAttemptLogger;
 
     @InjectMocks
-    private AuthServiceImpl authService;
+    private LoginUseCase authService;
 
     @Test
     void authenticateSuccessful() {
         // Arrange
         String email = "test@example.com";
         String password = "password";
+        LoginRequest loginRequest = new LoginRequest(email, password);
         Authentication authentication = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(jwtTokenProvider.generateAccessToken(authentication)).thenReturn("access_token");
@@ -46,7 +48,7 @@ class AuthServiceImplTest {
         when(jwtTokenProvider.getRefreshTokenExpiration()).thenReturn(Instant.now().plusSeconds(86400));
 
         // Act
-        AuthResponse response = authService.authenticate(email, password);
+        AuthResponse response = authService.execute(loginRequest);
 
         // Assert
         assertNotNull(response);
@@ -60,10 +62,11 @@ class AuthServiceImplTest {
         // Arrange
         String email = "test@example.com";
         String password = "wrong_password";
+        LoginRequest loginRequest = new LoginRequest(email, password);
         when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("Bad credentials"));
 
         // Act/Assert
-        assertThrows(BadCredentialsException.class, () -> authService.authenticate(email, password));
+        assertThrows(BadCredentialsException.class, () -> authService.execute(loginRequest));
         verify(authenticationAttemptLogger).logFailedAttempt(email);
     }
 }

@@ -1,24 +1,21 @@
-package com.juriba.tracker.auth.domain;
+package com.juriba.tracker.auth.domain.event;
 
+import com.juriba.tracker.auth.domain.AuthenticationAttempt;
 import com.juriba.tracker.common.application.DomainEvent;
-import lombok.Data;
+import lombok.Getter;
+import java.time.OffsetDateTime;
 
-import java.time.LocalDateTime;
-
-@Data
+@Getter
 public class AuthenticationAttemptedEvent implements DomainEvent {
 
     private final AuthenticationAttempt attempt;
-    private final LocalDateTime occurredOn;
+    private final OffsetDateTime occurredOn;
     public AuthenticationAttemptedEvent(AuthenticationAttempt attempt) {
         this.attempt = attempt;
-        this.occurredOn = LocalDateTime.now();
+        this.occurredOn = OffsetDateTime.now();
     }
-
-
-
     @Override
-    public LocalDateTime occurredOn() {
+    public OffsetDateTime occurredOn() {
         return occurredOn;
     }
 }

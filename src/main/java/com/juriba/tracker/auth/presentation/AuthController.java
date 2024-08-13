@@ -1,6 +1,7 @@
 package com.juriba.tracker.auth.presentation;
 
-import com.juriba.tracker.auth.application.AuthService;
+import com.juriba.tracker.auth.application.imp.LoginUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,16 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Auth Endpoints")
 public class AuthController {
-    private final AuthService authService;
+    private final LoginUseCase loginUseCase;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(LoginUseCase loginUseCase) {
+        this.loginUseCase = loginUseCase;
     }
 
-    @PostMapping("authenticate")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(@Validated @RequestBody LoginRequest loginRequest) {
-        AuthResponse authResponse = authService.authenticate(loginRequest.email(), loginRequest.password());
+        AuthResponse authResponse = loginUseCase.execute(loginRequest);
         return ResponseEntity.ok(authResponse);
     }
 }

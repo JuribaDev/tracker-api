@@ -1,11 +1,16 @@
 package com.juriba.tracker.auth.infrastructure.security;
 
+import com.juriba.tracker.auth.domain.exception.UnauthorizedException;
+import com.juriba.tracker.auth.infrastructure.config.SecurityPathConfig;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -14,26 +19,34 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtDecoder jwtDecoder;
     private final UserDetailsService userDetailsService;
+    private final SecurityPathConfig securityPathConfig;
 
-    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, UserDetailsService userDetailsService, SecurityPathConfig securityPathConfig) {
         this.jwtDecoder = jwtDecoder;
         this.userDetailsService = userDetailsService;
+        this.securityPathConfig = securityPathConfig;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected boolean shouldNotFilter(@NotNull HttpServletRequest request) {
+        return securityPathConfig.publicPathsMatcher().matches(request);
+    }
+
+    @Override
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
+            if (jwtDecoder.decode(jwt) != null) {
+                String email = jwtDecoder.decode(jwt).getSubject();
 
-            if (jwt != null && jwtDecoder.decode(jwt) != null) {
-                String username = jwtDecoder.decode(jwt).getSubject();
-
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -42,8 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
+            SecurityContextHolder.clearContext();
+            throw new UnauthorizedException("Unauthorized", ex);
         }
-
         filterChain.doFilter(request, response);
     }
 
@@ -52,6 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        return null;
+        throw new AuthenticationCredentialsNotFoundException("Authorization header is missing or invalid");
     }
 }
