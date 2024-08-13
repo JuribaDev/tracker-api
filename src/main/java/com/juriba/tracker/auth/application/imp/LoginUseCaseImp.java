@@ -1,6 +1,7 @@
 package com.juriba.tracker.auth.application.imp;
 
-import com.juriba.tracker.auth.application.AuthenticationAttemptLogger;
+import com.juriba.tracker.auth.application.LogAuthenticationAttemptUseCase;
+import com.juriba.tracker.auth.application.LoginUseCase;
 import com.juriba.tracker.auth.infrastructure.security.imp.JwtTokenProviderImp;
 import com.juriba.tracker.auth.presentation.AuthResponse;
 import com.juriba.tracker.auth.presentation.LoginRequest;
@@ -12,17 +13,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @UseCase
-public class LoginUseCase {
+public class LoginUseCaseImp implements LoginUseCase {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProviderImp jwtTokenProvider;
-    private final AuthenticationAttemptLogger authenticationAttemptLogger;
+    private final LogAuthenticationAttemptUseCase logAuthenticationAttemptUseCase;
 
-    public LoginUseCase(AuthenticationManager authenticationManager,
-                        JwtTokenProviderImp jwtTokenProvider,
-                        AuthenticationAttemptLogger authenticationAttemptLogger) {
+    public LoginUseCaseImp(AuthenticationManager authenticationManager,
+                           JwtTokenProviderImp jwtTokenProvider,
+                           LogAuthenticationAttemptUseCase logAuthenticationAttemptUseCase) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationAttemptLogger = authenticationAttemptLogger;
+        this.logAuthenticationAttemptUseCase = logAuthenticationAttemptUseCase;
     }
 
     @Transactional
@@ -39,10 +40,10 @@ public class LoginUseCase {
                     .expiresAt(jwtTokenProvider.getRefreshTokenExpiration())
                     .refreshExpiresAt(jwtTokenProvider.getAccessTokenExpiration())
                     .build();
-            authenticationAttemptLogger.logSuccessfulAttempt(loginRequest.email());
+            logAuthenticationAttemptUseCase.execute(loginRequest.email(), true);
             return authResponse;
         } catch (Exception e) {
-            authenticationAttemptLogger.logFailedAttempt(loginRequest.email());
+            logAuthenticationAttemptUseCase.execute(loginRequest.email(), false);
             throw e;
         }
     }

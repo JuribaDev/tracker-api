@@ -1,6 +1,6 @@
 package com.juriba.tracker.auth.presentation;
 
-import com.juriba.tracker.auth.application.imp.LoginUseCase;
+import com.juriba.tracker.auth.application.imp.LoginUseCaseImp;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth Endpoints")
 public class AuthController {
-    private final LoginUseCase loginUseCase;
+    private final LoginUseCaseImp loginUseCase;
 
-    public AuthController(LoginUseCase loginUseCase) {
+    public AuthController(LoginUseCaseImp loginUseCase) {
         this.loginUseCase = loginUseCase;
     }
 
