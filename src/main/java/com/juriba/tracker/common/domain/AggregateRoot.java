@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,11 +28,11 @@ public abstract class AggregateRoot{
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "timestamp with time zone")
-    protected OffsetDateTime createdAt;
+    protected Instant createdAt;
 
     @LastModifiedDate
     @Column(name = "modified_at", columnDefinition = "timestamp with time zone")
-    protected OffsetDateTime modifiedAt;
+    protected Instant modifiedAt;
 
     @CreatedBy
     @Column(name = "created_by", nullable = false, updatable = false)

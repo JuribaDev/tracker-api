@@ -1,4 +1,4 @@
-package com.juriba.tracker.auth.presentation;
+package com.juriba.tracker.auth.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

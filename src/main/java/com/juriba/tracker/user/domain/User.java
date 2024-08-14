@@ -1,6 +1,7 @@
 package com.juriba.tracker.user.domain;
 
 import com.juriba.tracker.common.domain.AggregateRoot;
+import com.juriba.tracker.expense.domain.Category;
 import com.juriba.tracker.user.domain.event.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,14 +16,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Builder
-@Table(name = "users")
-@EqualsAndHashCode(callSuper = true)
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "users",indexes = {
+        @Index(name = "idx_user_email", columnList = "email", unique = true)
+})
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Setter
 public class User extends AggregateRoot implements UserDetails, Principal {
     @Column(unique = true, nullable = false)
+    @EqualsAndHashCode.Include
     private String email;
     @Column(nullable = false)
     private String name;
@@ -30,13 +33,17 @@ public class User extends AggregateRoot implements UserDetails, Principal {
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private Set<Category> categories = new HashSet<>();
 
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
@@ -46,12 +53,9 @@ public class User extends AggregateRoot implements UserDetails, Principal {
 
 
     public User(String name, String email, String password) {
-        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.email = email;
         this.password = password;
-        this.createdAt = OffsetDateTime.now();
-        this.createdBy = this.id;
         registerEvent(new UserCreatedEvent(this));
     }
 
@@ -94,9 +98,9 @@ public class User extends AggregateRoot implements UserDetails, Principal {
     }
 
     public void addRole(Role role) {
-        if (!this.roles.contains(role)) {
-            this.roles.add(role);
-            registerEvent(new UserRoleAddedEvent(this, role));
+        if (this.roles.add(role)){
+        role.getUsers().add(this);
+        registerEvent(new UserRoleAddedEvent(this, role));
         }
     }
 
@@ -105,6 +109,21 @@ public class User extends AggregateRoot implements UserDetails, Principal {
             registerEvent(new UserRoleRemovedEvent(this, role));
         }
     }
+
+    public void addCategory(Category category) {
+        if(categories.add(category)){
+        category.setOwner(this);
+        registerEvent(new UserCategoryAddedEvent(this, category));
+        }
+    }
+
+    public void removeCategory(Category category) {
+        if(categories.remove(category)){
+        category.setOwner(null);
+        registerEvent(new UserCategoryRemovedEvent(this, category));
+        }
+    }
+
 
     public void disable() {
         this.enabled = false;
@@ -115,7 +134,6 @@ public class User extends AggregateRoot implements UserDetails, Principal {
         this.enabled = true;
         registerEvent(new UserEnabledEvent(this));
     }
-
     public void lockAccount() {
         this.accountNonLocked = false;
         registerEvent(new UserAccountLockedEvent(this));
