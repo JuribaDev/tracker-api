@@ -2,9 +2,9 @@ package com.juriba.tracker.auth.application.imp;
 
 import com.juriba.tracker.auth.application.LogAuthenticationAttemptUseCase;
 import com.juriba.tracker.auth.application.LoginUseCase;
-import com.juriba.tracker.auth.infrastructure.security.imp.JwtTokenProviderImp;
-import com.juriba.tracker.auth.presentation.AuthResponse;
-import com.juriba.tracker.auth.presentation.LoginRequest;
+import com.juriba.tracker.auth.infrastructure.security.JwtTokenProvider;
+import com.juriba.tracker.auth.presentation.dto.AuthResponse;
+import com.juriba.tracker.auth.presentation.dto.LoginRequest;
 import com.juriba.tracker.common.application.UseCase;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 public class LoginUseCaseImp implements LoginUseCase {
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProviderImp jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
     private final LogAuthenticationAttemptUseCase logAuthenticationAttemptUseCase;
 
     public LoginUseCaseImp(AuthenticationManager authenticationManager,
-                           JwtTokenProviderImp jwtTokenProvider,
+                           JwtTokenProvider jwtTokenProvider,
                            LogAuthenticationAttemptUseCase logAuthenticationAttemptUseCase) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;

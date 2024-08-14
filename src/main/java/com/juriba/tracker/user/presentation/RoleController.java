@@ -1,6 +1,6 @@
 package com.juriba.tracker.user.presentation;
 
-import com.juriba.tracker.user.application.*;
+import com.juriba.tracker.user.application.imp.*;
 import com.juriba.tracker.user.presentation.dto.RoleRequest;
 import com.juriba.tracker.user.presentation.dto.RoleResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,13 +16,13 @@ import java.util.List;
 @RequestMapping("/api/v1/roles")
 @Tag(name = "Roles Endpoints")
 public class RoleController {
-    private final CreateRoleUseCase createRoleUseCase;
-    private final GetRoleUseCase getRoleUseCase;
-    private final UpdateRoleUseCase updateRoleUseCase;
-    private final DeleteRoleUseCase deleteRoleUseCase;
-    private final ListRolesUseCase listRolesUseCase;
+    private final CreateRoleUseCaseImp createRoleUseCase;
+    private final GetRoleUseCaseImp getRoleUseCase;
+    private final UpdateRoleUseCaseImp updateRoleUseCase;
+    private final DeleteRoleUseCaseImp deleteRoleUseCase;
+    private final ListRolesUseCaseImp listRolesUseCase;
 
-    public RoleController(CreateRoleUseCase createRoleUseCase, GetRoleUseCase getRoleUseCase, UpdateRoleUseCase updateRoleUseCase, DeleteRoleUseCase deleteRoleUseCase, ListRolesUseCase listRolesUseCase) {
+    public RoleController(CreateRoleUseCaseImp createRoleUseCase, GetRoleUseCaseImp getRoleUseCase, UpdateRoleUseCaseImp updateRoleUseCase, DeleteRoleUseCaseImp deleteRoleUseCase, ListRolesUseCaseImp listRolesUseCase) {
         this.createRoleUseCase = createRoleUseCase;
         this.getRoleUseCase = getRoleUseCase;
         this.updateRoleUseCase = updateRoleUseCase;

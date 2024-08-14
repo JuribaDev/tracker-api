@@ -22,11 +22,11 @@ public class AuthenticationAttempt extends AggregateRoot {
 
 
     public AuthenticationAttempt( String email, boolean successful) {
-        this.id = UUID.randomUUID().toString();
+//        this.id = UUID.randomUUID().toString();
         this.email = email;
         this.successful = successful;
-        this.createdBy = "System";
-        this.createdAt = OffsetDateTime.now();
+//        this.createdBy = "System";
+//        this.createdAt = OffsetDateTime.now();
         registerEvent(new AuthenticationAttemptedEvent(this));
     }
 

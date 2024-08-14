@@ -3,14 +3,18 @@ package com.juriba.tracker.auth.infrastructure.config;
 import com.juriba.tracker.auth.application.imp.AuthenticatedUserDetailServiceImp;
 import com.juriba.tracker.auth.infrastructure.security.CustomAuthenticationEntryPoint;
 import com.juriba.tracker.auth.infrastructure.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -31,6 +35,7 @@ import java.security.interfaces.RSAPublicKey;
 
 @Configuration
 @EnableWebSecurity
+@Profile("dev")
 public class SecurityConfig {
 
     @Value("${jwt.public.key}")
@@ -47,6 +52,10 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
         this.securityPathConfig = securityPathConfig;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+    }
+
+    private static void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        response.setStatus(200);
     }
 
     @Bean
@@ -96,4 +105,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

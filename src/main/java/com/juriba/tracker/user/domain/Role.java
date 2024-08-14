@@ -15,7 +15,10 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "roles",
+        indexes = {
+                @Index(name = "idx_role_name", columnList = "name", unique = true)
+        })
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @NoArgsConstructor
@@ -26,10 +29,7 @@ public class Role extends AggregateRoot {
     private final Set<User> users = new HashSet<>();
 
     public Role(String name) {
-        this.id = UUID.randomUUID().toString();
         this.name = name;
-        this.createdAt = OffsetDateTime.now();
-        this.createdBy = this.id;
         registerEvent(new RoleCreatedEvent(this));
     }
 
