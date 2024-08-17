@@ -2,6 +2,7 @@ package com.juriba.tracker.user.domain;
 
 import com.juriba.tracker.common.domain.AggregateRoot;
 import com.juriba.tracker.expense.domain.Category;
+import com.juriba.tracker.expense.domain.Expense;
 import com.juriba.tracker.user.domain.event.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +45,9 @@ public class User extends AggregateRoot implements UserDetails, Principal {
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private Set<Category> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private Set<Expense> expenses = new HashSet<>();
 
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
@@ -107,20 +111,6 @@ public class User extends AggregateRoot implements UserDetails, Principal {
     public void removeRole(Role role) {
         if (this.roles.remove(role)) {
             registerEvent(new UserRoleRemovedEvent(this, role));
-        }
-    }
-
-    public void addCategory(Category category) {
-        if(categories.add(category)){
-        category.setOwner(this);
-        registerEvent(new UserCategoryAddedEvent(this, category));
-        }
-    }
-
-    public void removeCategory(Category category) {
-        if(categories.remove(category)){
-        category.setOwner(null);
-        registerEvent(new UserCategoryRemovedEvent(this, category));
         }
     }
 

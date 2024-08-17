@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
+@Profile("dev")
 public class SecurityPathConfig {
 
     protected static final List<String> PUBLIC_PATHS = Arrays.asList(
@@ -24,9 +25,21 @@ public class SecurityPathConfig {
             "/h2-console/**"
     );
 
+    protected static final List<String> ADMIN_PATHS = Arrays.asList(
+            "/api/v1/roles/**",
+            "/api/v1/audit/**"
+    );
     public RequestMatcher publicPathsMatcher() {
         return new OrRequestMatcher(
                 PUBLIC_PATHS.stream()
+                        .map(AntPathRequestMatcher::new)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    public RequestMatcher adminPathsMatcher() {
+        return new OrRequestMatcher(
+                ADMIN_PATHS.stream()
                         .map(AntPathRequestMatcher::new)
                         .collect(Collectors.toList())
         );

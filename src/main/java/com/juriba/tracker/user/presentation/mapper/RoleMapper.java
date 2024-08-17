@@ -8,7 +8,8 @@ public class RoleMapper {
         return new RoleResponse(
                 role.getId(),
                 role.getName(),
-                role.getCreatedAt()
+                role.getCreatedAt(),
+                role.getModifiedAt()
         );
     }
 }

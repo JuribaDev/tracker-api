@@ -9,6 +9,7 @@ import com.juriba.tracker.user.infrastructure.RoleRepository;
 import com.juriba.tracker.user.infrastructure.UserRepository;
 import com.juriba.tracker.user.presentation.dto.CreateUserRequest;
 import com.juriba.tracker.user.presentation.dto.RoleRequest;
+import com.juriba.tracker.user.presentation.dto.RoleResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -78,12 +79,12 @@ class UserUseCasesTests {
         });
 
         // Act
-        Role createdRole = createRoleUseCase.execute(request);
+        RoleResponse createdRole = createRoleUseCase.execute(request);
 
         // Assert
         assertNotNull(createdRole);
-        assertEquals("role_id", createdRole.getId());
-        assertEquals("ADMIN", createdRole.getName());
+        assertEquals("role_id", createdRole.id());
+        assertEquals("ADMIN", createdRole.name());
     }
 
 

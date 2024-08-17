@@ -1,10 +1,12 @@
 package com.juriba.tracker.auth.infrastructure.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juriba.tracker.auth.application.imp.AuthenticatedUserDetailServiceImp;
 import com.juriba.tracker.auth.infrastructure.security.CustomAuthenticationEntryPoint;
 import com.juriba.tracker.auth.infrastructure.security.JwtAuthenticationFilter;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.juriba.tracker.common.application.RateLimitingService;
+import com.juriba.tracker.common.infrastructure.filter.RateLimitingFilter;
+import org.apache.catalina.filters.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +15,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -35,7 +38,7 @@ import java.security.interfaces.RSAPublicKey;
 
 @Configuration
 @EnableWebSecurity
-@Profile("dev")
+
 public class SecurityConfig {
 
     @Value("${jwt.public.key}")
@@ -47,15 +50,15 @@ public class SecurityConfig {
     private final AuthenticatedUserDetailServiceImp userDetailsService;
     private final SecurityPathConfig securityPathConfig;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final RateLimitingService rateLimitingService;
+    private final ObjectMapper objectMapper;
 
-    public SecurityConfig(AuthenticatedUserDetailServiceImp userDetailsService, SecurityPathConfig securityPathConfig, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+    public SecurityConfig(AuthenticatedUserDetailServiceImp userDetailsService, SecurityPathConfig securityPathConfig, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, RateLimitingService rateLimitingService, ObjectMapper objectMapper) {
         this.userDetailsService = userDetailsService;
         this.securityPathConfig = securityPathConfig;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
-    }
-
-    private static void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        response.setStatus(200);
+        this.rateLimitingService = rateLimitingService;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -63,19 +66,21 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(securityPathConfig.publicPathsMatcher()).permitAll()
+                        .requestMatchers(securityPathConfig.adminPathsMatcher()).hasRole("ADMIN")
                         .anyRequest().authenticated()
+
+
                 )
-                .csrf(csrf -> csrf.disable()
-                )
-                .headers(headers -> headers
-                        .frameOptions(op -> op.disable())
-                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
-                .addFilterBefore(jwtAuthenticationFilter(securityPathConfig), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(securityPathConfig), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RateLimitingFilter(rateLimitingService,objectMapper), UsernamePasswordAuthenticationFilter.class); // Add this line
+
 
         return http.build();
     }

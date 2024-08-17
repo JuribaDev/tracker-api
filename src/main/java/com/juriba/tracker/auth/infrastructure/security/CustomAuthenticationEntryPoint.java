@@ -2,7 +2,7 @@ package com.juriba.tracker.auth.infrastructure.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.juriba.tracker.common.domain.exception.dto.ErrorResponse;
+import com.juriba.tracker.common.presentation.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          AuthenticationException authException) throws IOException {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                authException.getMessage(),
+                "Unauthorized access. You need to login",
                 request.getRequestURI(),
                 LocalDateTime.now()
         );

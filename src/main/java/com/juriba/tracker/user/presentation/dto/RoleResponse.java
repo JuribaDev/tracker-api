@@ -8,7 +8,8 @@ import java.time.OffsetDateTime;
 public record RoleResponse(
         String id,
         String name,
-        @JsonProperty("created_at") Instant createdAt
+        @JsonProperty("created_at") Instant createdAt,
+        @JsonProperty("updated_at") Instant updatedAt
 
 ) {
 }

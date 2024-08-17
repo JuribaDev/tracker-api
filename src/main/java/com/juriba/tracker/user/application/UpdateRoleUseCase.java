@@ -1,7 +1,8 @@
 package com.juriba.tracker.user.application;
 
 import com.juriba.tracker.user.presentation.dto.RoleRequest;
+import com.juriba.tracker.user.presentation.dto.RoleResponse;
 
 public interface UpdateRoleUseCase {
-    void execute(String id, RoleRequest newRole);
+    RoleResponse execute(String id, RoleRequest newRole);
 }

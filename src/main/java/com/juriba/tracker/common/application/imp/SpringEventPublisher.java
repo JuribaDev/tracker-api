@@ -1,4 +1,4 @@
-package com.juriba.tracker.common.infrastructure;
+package com.juriba.tracker.common.application.imp;
 
 import com.juriba.tracker.common.application.DomainEvent;
 import com.juriba.tracker.common.domain.EventPublisher;

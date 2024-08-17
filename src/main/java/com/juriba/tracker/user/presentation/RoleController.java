@@ -38,6 +38,7 @@ public class RoleController {
     }
 
 
+
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRole(@PathVariable String id) {
         return ResponseEntity.ok(getRoleUseCase.execute(id));

@@ -1,6 +1,7 @@
 package expense.usecase;
 
 import com.juriba.tracker.auth.application.GetAuthenticatedUserUseCase;
+import com.juriba.tracker.common.domain.EventPublisher;
 import com.juriba.tracker.common.domain.exception.ResourceNotFoundException;
 import com.juriba.tracker.expense.application.imp.CreateExpenseUseCaseImp;
 import com.juriba.tracker.expense.application.imp.GetExpenseUseCaseImp;
@@ -34,6 +35,7 @@ class ExpenseUseCasesTests {
     @Mock private ExpenseRepository expenseRepository;
     @Mock private CategoryRepository categoryRepository;
     @Mock private GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
+    @Mock private EventPublisher eventPublisher;
 
     private CreateExpenseUseCaseImp createExpenseUseCase;
     private GetExpenseUseCaseImp getExpenseUseCase;
@@ -43,10 +45,10 @@ class ExpenseUseCasesTests {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        createExpenseUseCase = new CreateExpenseUseCaseImp(expenseRepository, categoryRepository, getAuthenticatedUserUseCase);
-        getExpenseUseCase = new GetExpenseUseCaseImp(expenseRepository);
-        getListExpensesUseCase = new GetListExpensesUseCaseImp(expenseRepository);
-        updateExpenseUseCase = new UpdateExpenseUseCaseImp(expenseRepository, categoryRepository);
+        createExpenseUseCase = new CreateExpenseUseCaseImp(expenseRepository, categoryRepository, getAuthenticatedUserUseCase, eventPublisher);
+        getExpenseUseCase = new GetExpenseUseCaseImp(expenseRepository, getAuthenticatedUserUseCase);
+        getListExpensesUseCase = new GetListExpensesUseCaseImp(expenseRepository, getAuthenticatedUserUseCase);
+        updateExpenseUseCase = new UpdateExpenseUseCaseImp(expenseRepository, categoryRepository, getAuthenticatedUserUseCase,eventPublisher);
     }
 
     @Test
@@ -56,7 +58,7 @@ class ExpenseUseCasesTests {
         User user = createTestUser();
         Category category = new Category("Test Category", user, false);
         category.setId("category_id");
-        Expense expense = new Expense("Test Expense", new BigDecimal("100.00"), category);
+        Expense expense = new Expense("Test Expense", new BigDecimal("100.00"), category, user);
         expense.setId("expense_id");
 
         when(getAuthenticatedUserUseCase.execute()).thenReturn(user);
@@ -79,7 +81,7 @@ class ExpenseUseCasesTests {
         String expenseId = "expense_id";
         User user = createTestUser();
         Category category = new Category("Test Category", user, false);
-        Expense expense = new Expense("Test Expense", new BigDecimal("100.00"), category);
+        Expense expense = new Expense("Test Expense", new BigDecimal("100.00"), category,user);
         expense.setId(expenseId);
         when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
 
@@ -110,10 +112,10 @@ class ExpenseUseCasesTests {
         Instant endDate = Instant.now();
         User user = createTestUser();
         Category category = new Category("Test Category", user, false);
-        Expense expense = new Expense("Test Expense", new BigDecimal("100.00"), category);
+        Expense expense = new Expense("Test Expense", new BigDecimal("100.00"), category,user);
         expense.setId("expense_id");
         Page<Expense> expensePage = new PageImpl<>(Collections.singletonList(expense));
-        when(expenseRepository.findByCreatedAtBetween(eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expensePage);
+        when(expenseRepository.findByOwner_IdAndCreatedAtBetween(eq(user.getId()),eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expensePage);
 
         // Act
         Page<ExpenseResponse> response = getListExpensesUseCase.execute(startDate, endDate, 0, 10, "createdAt", "DESC");
@@ -128,10 +130,10 @@ class ExpenseUseCasesTests {
     void updateExpenseUseCase_SuccessfulUpdate() {
         // Arrange
         String expenseId = "expense_id";
-        UpdateExpenseRequest request = new UpdateExpenseRequest("Updated Expense", new BigDecimal("200.00"));
+        UpdateExpenseRequest request = new UpdateExpenseRequest("Updated Expense", new BigDecimal("200.00"), "category_id");
         User user = createTestUser();
         Category category = new Category("Test Category", user, false);
-        Expense existingExpense = new Expense("Test Expense", new BigDecimal("100.00"), category);
+        Expense existingExpense = new Expense("Test Expense", new BigDecimal("100.00"), category,user);
         existingExpense.setId(expenseId);
         when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(existingExpense));
         when(categoryRepository.findById(existingExpense.getCategory().getId())).thenReturn(Optional.of(existingExpense.getCategory()));

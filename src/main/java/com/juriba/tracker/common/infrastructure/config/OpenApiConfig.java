@@ -1,4 +1,4 @@
-package com.juriba.tracker.common.infrastructure;
+package com.juriba.tracker.common.infrastructure.config;
 
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;

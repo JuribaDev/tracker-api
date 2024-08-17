@@ -1,4 +1,4 @@
-package com.juriba.tracker.common.domain.exception.dto;
+package com.juriba.tracker.common.presentation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

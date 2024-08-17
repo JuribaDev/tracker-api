@@ -1,4 +1,4 @@
-package com.juriba.tracker.common.infrastructure;
+package com.juriba.tracker.common.infrastructure.config;
 
 import com.juriba.tracker.user.application.CreateRoleUseCase;
 import com.juriba.tracker.user.application.CreateUserUseCase;
@@ -13,7 +13,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @Profile("dev")
@@ -23,12 +22,16 @@ public class DefaultUserConfig {
     @Transactional
     public CommandLineRunner initializeDefaultUsers(
             UserRepository userRepository,
-            CreateRoleUseCase roleUseCase,
+            RoleRepository roleRepository,
             CreateUserUseCase createUserUseCase) {
 
         return args -> {
-            Role adminRole = roleUseCase.execute(new RoleRequest("ADMIN"));
-            Role userRole = roleUseCase.execute(new RoleRequest("USER"));
+
+            Role adminRole = roleRepository.findByName("ADMIN")
+                    .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
+
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseGet(() -> roleRepository.save(new Role("USER")));
 
             if (userRepository.findByEmail("admin@tracker.com").isEmpty()) {
                 CreateUserRequest adminRequest = new CreateUserRequest("admin@tracker.com", "adminPassword", "Admin");

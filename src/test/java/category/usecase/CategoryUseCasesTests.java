@@ -2,6 +2,7 @@ package category.usecase;
 
 
 import com.juriba.tracker.auth.application.GetAuthenticatedUserUseCase;
+import com.juriba.tracker.common.domain.EventPublisher;
 import com.juriba.tracker.common.domain.exception.ConflictException;
 import com.juriba.tracker.expense.application.imp.*;
 import com.juriba.tracker.expense.domain.Category;
@@ -9,12 +10,10 @@ import com.juriba.tracker.expense.infrastructure.CategoryRepository;
 import com.juriba.tracker.expense.presentation.dto.CategoryRequest;
 import com.juriba.tracker.expense.presentation.dto.CategoryResponse;
 import com.juriba.tracker.user.domain.User;
-import com.juriba.tracker.user.infrastructure.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -22,7 +21,7 @@ import static org.mockito.Mockito.*;
 class CategoryUseCasesTests {
 
     @Mock private CategoryRepository categoryRepository;
-    @Mock private UserRepository userRepository;
+    @Mock private EventPublisher eventPublisher;
     @Mock private GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
 
     private CreateCategoryUseCaseImp createCategoryUseCase;
@@ -31,7 +30,7 @@ class CategoryUseCasesTests {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        createCategoryUseCase = new CreateCategoryUseCaseImp(categoryRepository, userRepository, getAuthenticatedUserUseCase);
+        createCategoryUseCase = new CreateCategoryUseCaseImp(categoryRepository, getAuthenticatedUserUseCase,eventPublisher );
     }
 
     @Test
@@ -40,8 +39,7 @@ class CategoryUseCasesTests {
         CategoryRequest request = new CategoryRequest("Test Category");
         User user = createTestUser();
         when(getAuthenticatedUserUseCase.execute()).thenReturn(user);
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(categoryRepository.existsByNameAndOwner("Test Category", user)).thenReturn(false);
+        when(categoryRepository.existsByNameAndOwner_Id("Test Category", user.getId())).thenReturn(false);
         when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> {
             Category category = invocation.getArgument(0);
             category.setId("category_id");
@@ -53,8 +51,8 @@ class CategoryUseCasesTests {
 
         // Assert
         assertNotNull(response);
-        assertEquals("category_id", response.id());
-        assertEquals("Test Category", response.name());
+        assertEquals("category_id", response.getId());
+        assertEquals("Test Category", response.getName());
         assertFalse(response.isDefault());
     }
 
@@ -64,8 +62,7 @@ class CategoryUseCasesTests {
         CategoryRequest request = new CategoryRequest("Existing Category");
         User user = createTestUser();
         when(getAuthenticatedUserUseCase.execute()).thenReturn(user);
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(categoryRepository.existsByNameAndOwner("Existing Category", user)).thenReturn(true);
+        when(categoryRepository.existsByNameAndOwner_Id("Existing Category", user.getId())).thenReturn(true);
 
         // Act & Assert
         assertThrows(ConflictException.class, () -> createCategoryUseCase.execute(request));

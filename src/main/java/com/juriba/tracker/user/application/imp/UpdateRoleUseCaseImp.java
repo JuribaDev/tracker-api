@@ -6,6 +6,7 @@ import com.juriba.tracker.user.application.UpdateRoleUseCase;
 import com.juriba.tracker.user.domain.Role;
 import com.juriba.tracker.user.infrastructure.RoleRepository;
 import com.juriba.tracker.user.presentation.dto.RoleRequest;
+import com.juriba.tracker.user.presentation.dto.RoleResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
@@ -20,7 +21,7 @@ public class UpdateRoleUseCaseImp implements UpdateRoleUseCase {
 
     @Override
     @Transactional
-    public void execute(String id, RoleRequest newRole) {
+    public RoleResponse execute(String id, RoleRequest newRole) {
         String name = newRole.name().toUpperCase();
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -31,5 +32,6 @@ public class UpdateRoleUseCaseImp implements UpdateRoleUseCase {
         roleRepository.save(role);
         role.getDomainEvents().forEach(eventPublisher::publish);
         role.clearDomainEvents();
+        return new RoleResponse(role.getId(), role.getName(),role.getCreatedAt(), role.getModifiedAt());
     }
 }

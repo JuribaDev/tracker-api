@@ -1,4 +1,4 @@
-package com.juriba.tracker.common.infrastructure;
+package com.juriba.tracker.common.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
