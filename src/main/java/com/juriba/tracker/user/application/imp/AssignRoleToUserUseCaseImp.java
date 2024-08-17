@@ -33,6 +33,6 @@ public class AssignRoleToUserUseCaseImp implements AssignRoleToUserUseCase {
         userRepository.save(user);
         user.getDomainEvents().forEach(eventPublisher::publish);
         user.clearDomainEvents();
-        return new CommonSuccessResponse("Role: "+role.getName()+ "assigned to user: "+user.getEmail());
+        return new CommonSuccessResponse("Role: "+role.getName()+ " assigned to user: "+user.getEmail());
     }
 }

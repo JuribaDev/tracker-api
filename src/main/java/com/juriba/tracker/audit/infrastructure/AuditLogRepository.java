@@ -6,11 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, String> {
-    Page<AuditLog> findByOccurredOnBetween(Instant startDate, Instant endDate, Pageable pageable);
-    Page<AuditLog> findAll(Pageable pageable);
+    Page<AuditLog> findByOccurredOnBetween(OffsetDateTime startDate, OffsetDateTime endDate, Pageable pageable);
 }

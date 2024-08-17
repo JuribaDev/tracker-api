@@ -32,10 +32,11 @@ public class CreateCategoryUseCaseImp implements CreateCategoryUseCase {
     public CategoryResponse execute(CategoryRequest request) {
         User currentUser = getAuthenticatedUserUseCase.execute();
 
-        if (categoryRepository.existsByNameAndOwner_Id(request.name(), currentUser.getId())) {
+        String trimmedCategoryName = request.name().trim();
+        if (categoryRepository.existsByNameAndOwner_Id(trimmedCategoryName, currentUser.getId())) {
             throw new ConflictException("Category with this name already exists for the current user: " + currentUser.getEmail());
         }
-        Category category = new Category(request.name(), currentUser, false);
+        Category category = new Category(trimmedCategoryName, currentUser, false);
         category = categoryRepository.save(category);
         category.getDomainEvents().forEach(eventPublisher::publish);
         category.clearDomainEvents();

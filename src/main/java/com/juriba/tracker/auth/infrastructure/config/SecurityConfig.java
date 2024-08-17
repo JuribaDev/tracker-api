@@ -6,11 +6,9 @@ import com.juriba.tracker.auth.infrastructure.security.CustomAuthenticationEntry
 import com.juriba.tracker.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.juriba.tracker.common.application.RateLimitingService;
 import com.juriba.tracker.common.infrastructure.filter.RateLimitingFilter;
-import org.apache.catalina.filters.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,7 +36,6 @@ import java.security.interfaces.RSAPublicKey;
 
 @Configuration
 @EnableWebSecurity
-
 public class SecurityConfig {
 
     @Value("${jwt.public.key}")
