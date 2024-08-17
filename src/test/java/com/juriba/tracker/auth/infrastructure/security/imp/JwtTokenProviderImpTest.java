@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 
 import java.time.Instant;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,9 +39,6 @@ class JwtTokenProviderImpTest {
     void generateAccessToken_shouldCreateValidToken() {
         // Arrange
         when(authentication.getName()).thenReturn("user@example.com");
-//        when(authentication.getAuthorities()).thenReturn(
-//                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-//        );
         Jwt jwt = mock(Jwt.class);
         when(jwt.getTokenValue()).thenReturn("mocked.access.token");
         when(jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwt);
@@ -59,9 +55,6 @@ class JwtTokenProviderImpTest {
     void generateRefreshToken_shouldCreateValidToken() {
         // Arrange
         when(authentication.getName()).thenReturn("user@example.com");
-//        when(authentication.getAuthorities()).thenReturn(
-//                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-//        );
         Jwt jwt = mock(Jwt.class);
         when(jwt.getTokenValue()).thenReturn("mocked.refresh.token");
         when(jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwt);
