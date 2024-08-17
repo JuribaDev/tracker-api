@@ -32,17 +32,16 @@ public class CreateUserUseCaseImp implements CreateUserUseCase {
             throw new IllegalArgumentException("User already exists");
         }
 
-        User user = new User(
-                createUserRequest.name(),
-                createUserRequest.email(),
-                passwordEncoder.encode(createUserRequest.password())
-        );
-
         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException("Default USER role not found"));
 
-        user.addRole(userRole);
+        User user = new User(
+                createUserRequest.name().trim(),
+                createUserRequest.email().trim(),
+                passwordEncoder.encode(createUserRequest.password().trim())
+        );
 
+        user.addRole(userRole);
         User savedUser = userRepository.save(user);
 
         savedUser.getDomainEvents().forEach(eventPublisher::publish);

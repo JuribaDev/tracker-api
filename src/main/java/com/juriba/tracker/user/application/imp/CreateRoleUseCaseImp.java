@@ -6,6 +6,7 @@ import com.juriba.tracker.user.application.CreateRoleUseCase;
 import com.juriba.tracker.user.domain.Role;
 import com.juriba.tracker.user.infrastructure.RoleRepository;
 import com.juriba.tracker.user.presentation.dto.RoleRequest;
+import com.juriba.tracker.user.presentation.dto.RoleResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
@@ -20,15 +21,13 @@ public class CreateRoleUseCaseImp implements CreateRoleUseCase {
 
     @Override
     @Transactional
-    public Role execute(RoleRequest roleRequest) {
+    public RoleResponse execute(RoleRequest roleRequest) {
         String roleName = roleRequest.name().toUpperCase();
-        return roleRepository.findByName(roleName)
-                .orElseGet(() -> {
-                    var role = new Role(roleName);
-                    Role savedRole = roleRepository.save(role);
-                    role.getDomainEvents().forEach(eventPublisher::publish);
-                    role.clearDomainEvents();
-                    return savedRole;
-                });
+        Role role = roleRepository.findByName(roleName)
+                .orElseGet(() -> roleRepository.save(new Role(roleName)));
+
+        role.getDomainEvents().forEach(eventPublisher::publish);
+        role.clearDomainEvents();
+        return new RoleResponse(role.getId(), role.getName(), role.getCreatedAt(), role.getModifiedAt());
     }
 }

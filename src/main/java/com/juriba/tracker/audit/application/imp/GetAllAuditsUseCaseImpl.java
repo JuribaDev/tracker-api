@@ -11,8 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @UseCase
 public class GetAllAuditsUseCaseImpl implements GetAllAuditsUseCase {
@@ -24,7 +23,7 @@ public class GetAllAuditsUseCaseImpl implements GetAllAuditsUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AuditResponse> execute(Instant startDate, Instant endDate, int page, int size, String sortBy, String sortDirection) {
+    public Page<AuditResponse> execute(OffsetDateTime startDate, OffsetDateTime endDate, int page, int size, String sortBy, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 

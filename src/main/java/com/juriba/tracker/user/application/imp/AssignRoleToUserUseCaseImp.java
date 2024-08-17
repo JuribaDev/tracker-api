@@ -2,6 +2,7 @@ package com.juriba.tracker.user.application.imp;
 
 import com.juriba.tracker.common.application.UseCase;
 import com.juriba.tracker.common.domain.EventPublisher;
+import com.juriba.tracker.common.presentation.dto.CommonSuccessResponse;
 import com.juriba.tracker.user.application.AssignRoleToUserUseCase;
 import com.juriba.tracker.user.domain.Role;
 import com.juriba.tracker.user.domain.User;
@@ -23,7 +24,7 @@ public class AssignRoleToUserUseCaseImp implements AssignRoleToUserUseCase {
 
     @Override
     @Transactional
-    public void execute(String userId, String roleId) {
+    public CommonSuccessResponse execute(String userId, String roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         Role role = roleRepository.findByName(roleId)
@@ -32,5 +33,6 @@ public class AssignRoleToUserUseCaseImp implements AssignRoleToUserUseCase {
         userRepository.save(user);
         user.getDomainEvents().forEach(eventPublisher::publish);
         user.clearDomainEvents();
+        return new CommonSuccessResponse("Role: "+role.getName()+ " assigned to user: "+user.getEmail());
     }
 }

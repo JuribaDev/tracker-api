@@ -3,6 +3,7 @@ package com.juriba.tracker.auth.infrastructure.security;
 import com.juriba.tracker.auth.domain.exception.UnauthorizedException;
 import com.juriba.tracker.auth.infrastructure.config.SecurityPathConfig;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -38,8 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
-                                    @NotNull FilterChain filterChain)
+    protected void doFilterInternal( HttpServletRequest request,  HttpServletResponse response,
+                                     FilterChain filterChain)
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
@@ -54,9 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
-            SecurityContextHolder.clearContext();
-            throw new UnauthorizedException("Unauthorized", ex);
+//            log.error("Could not set uer authentication in security context. [Error message:{}] [Class name:{}]",ex.getMessage(), ex.getClass().getSimpleName());
         }
         filterChain.doFilter(request, response);
     }

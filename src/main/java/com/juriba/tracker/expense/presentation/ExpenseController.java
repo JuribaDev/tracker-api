@@ -1,9 +1,7 @@
 package com.juriba.tracker.expense.presentation;
 
-import com.juriba.tracker.expense.application.CreateExpenseUseCase;
-import com.juriba.tracker.expense.application.GetExpenseUseCase;
-import com.juriba.tracker.expense.application.GetListExpensesUseCase;
-import com.juriba.tracker.expense.application.UpdateExpenseUseCase;
+import com.juriba.tracker.common.presentation.dto.CommonSuccessResponse;
+import com.juriba.tracker.expense.application.*;
 import com.juriba.tracker.expense.application.imp.CreateExpenseUseCaseImp;
 import com.juriba.tracker.expense.presentation.dto.ExpenseRequest;
 import com.juriba.tracker.expense.presentation.dto.ExpenseResponse;
@@ -28,15 +26,19 @@ public class ExpenseController {
     private final GetListExpensesUseCase getListExpensesUseCase;
     private final GetExpenseUseCase getExpenseUseCase;
     private final CreateExpenseUseCase createExpenseUseCase;
+    private final DeleteCategoryUseCase deleteCategoryUseCase;
     private final UpdateExpenseUseCase updateExpenseUseCase;
     private final PagedResourcesAssembler<ExpenseResponse> pagedResourcesAssembler;
 
 
 
-    public ExpenseController(GetListExpensesUseCase getListExpensesUseCase, GetExpenseUseCase getExpenseUseCase, CreateExpenseUseCaseImp createExpenseUseCase, UpdateExpenseUseCase updateExpenseUseCase, PagedResourcesAssembler<ExpenseResponse> pagedResourcesAssembler) {
+    public ExpenseController(GetListExpensesUseCase getListExpensesUseCase, GetExpenseUseCase getExpenseUseCase,
+                             CreateExpenseUseCaseImp createExpenseUseCase, DeleteCategoryUseCase deleteCategoryUseCase, UpdateExpenseUseCase updateExpenseUseCase,
+                             PagedResourcesAssembler<ExpenseResponse> pagedResourcesAssembler) {
         this.getListExpensesUseCase = getListExpensesUseCase;
         this.getExpenseUseCase = getExpenseUseCase;
         this.createExpenseUseCase = createExpenseUseCase;
+        this.deleteCategoryUseCase = deleteCategoryUseCase;
         this.updateExpenseUseCase = updateExpenseUseCase;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
@@ -68,5 +70,10 @@ public class ExpenseController {
     public ResponseEntity<ExpenseResponse> getExpense( @PathVariable String id) {
         ExpenseResponse response = getExpenseUseCase.execute(id);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CommonSuccessResponse> deleteExpense(@PathVariable String id) {
+        return ResponseEntity.ok(deleteCategoryUseCase.execute(id));
     }
 }
