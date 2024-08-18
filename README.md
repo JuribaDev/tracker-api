@@ -49,6 +49,7 @@ Each feature area is further divided into:
 
 - Java 17 or later
 - Maven
+- openssl
 
 ### Setup
 
@@ -74,7 +75,16 @@ Each feature area is further divided into:
 
 5. Run the application:
    ```
-   mvn spring-boot:run
+   mvn spring-boot:run -Dspring-boot.run.profiles=dev
+   ```
+   
+6. For testing, you can use the generated following credentials:
+   ```
+   admin User Email: admin@tracker.com
+   admin User Password: adminPassword
+   
+   user User Email: user@tracker.com
+   user User Password: userPassword  
    ```
 
 The application will start on `http://localhost:8080`.

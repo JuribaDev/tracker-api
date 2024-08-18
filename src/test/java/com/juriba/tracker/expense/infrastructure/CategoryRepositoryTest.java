@@ -42,9 +42,9 @@ class CategoryRepositoryTest {
         User user1 = createAndPersistUser("John", "john@example.com");
         User user2 = createAndPersistUser("Jane", "jane@example.com");
 
-        Category category1 = createAndPersistCategory("Food", user1, false);
-        Category category2 = createAndPersistCategory("Transport", user1, false);
-        Category category3 = createAndPersistCategory("Entertainment", user2, false);
+        createAndPersistCategory("Food", user1, false);
+        createAndPersistCategory("Transport", user1, false);
+        createAndPersistCategory("Entertainment", user2, false);
 
         entityManager.flush();
         entityManager.clear();
