@@ -12,6 +12,7 @@ This project is an Expense Tracker API built with Spring Boot. It provides a rob
 - Role-based Access Control
 - Audit Logging Events based on Spring Application Events
 - JWT Token-based Authentication
+- OpenAPI (Swagger) Documentation
 - Pagination and Sorting for List Operations
 
 ## Technology Stack
@@ -25,6 +26,7 @@ This project is an Expense Tracker API built with Spring Boot. It provides a rob
 - GitHub Actions (CI/CD)
 - Lombok
 - SpringDoc OpenAPI (Swagger)
+- Rate Limiting with Bucket4j
 
 ## Project Structure
 

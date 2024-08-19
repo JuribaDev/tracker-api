@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-@Profile("dev")
+//@Profile("dev")
 public class SecurityPathConfig {
 
     protected static final List<String> PUBLIC_PATHS = Arrays.asList(
@@ -22,7 +22,8 @@ public class SecurityPathConfig {
             "/swagger-ui/**",
             "/v1/api-docs/**",
             "/actuator/**",
-            "/h2-console/**"
+            "/h2-console/**",
+            "/api/v1/health"
     );
 
     protected static final List<String> ADMIN_PATHS = Arrays.asList(

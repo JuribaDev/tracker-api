@@ -6,6 +6,7 @@ import com.juriba.tracker.auth.infrastructure.security.CustomAuthenticationEntry
 import com.juriba.tracker.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.juriba.tracker.common.application.RateLimitingService;
 import com.juriba.tracker.common.infrastructure.filter.RateLimitingFilter;
+import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +24,15 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.AuthenticationFilter;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -50,7 +53,7 @@ public class SecurityConfig {
     private final RateLimitingService rateLimitingService;
     private final ObjectMapper objectMapper;
 
-    public SecurityConfig(AuthenticatedUserDetailServiceImp userDetailsService, SecurityPathConfig securityPathConfig, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, RateLimitingService rateLimitingService, ObjectMapper objectMapper) {
+    public SecurityConfig(AuthenticatedUserDetailServiceImp userDetailsService, SecurityPathConfig securityPathConfig, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, RateLimitingService rateLimitingService, ObjectMapper objectMapper, RateLimitingFilter rateLimitingFilter) {
         this.userDetailsService = userDetailsService;
         this.securityPathConfig = securityPathConfig;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
@@ -75,15 +78,17 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
-                .addFilterBefore(jwtAuthenticationFilter(securityPathConfig), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new RateLimitingFilter(rateLimitingService,objectMapper), UsernamePasswordAuthenticationFilter.class); // Add this line
+                .addFilterBefore(new RateLimitingFilter(rateLimitingService,objectMapper), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationFilter(), AuthorizationFilter.class);
 
 
         return http.build();
     }
 
+
+
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(SecurityPathConfig securityPathConfig) {
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtDecoder(), userDetailsService,securityPathConfig);
     }
 
