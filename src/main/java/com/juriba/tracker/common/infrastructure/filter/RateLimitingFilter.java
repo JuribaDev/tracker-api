@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -16,12 +17,13 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-
+@Slf4j
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final RateLimitingService rateLimitingService;
     private final ObjectMapper objectMapper;
+
     public RateLimitingFilter(RateLimitingService rateLimitingService, ObjectMapper objectMapper) {
         this.rateLimitingService = rateLimitingService;
         this.objectMapper = objectMapper;
@@ -37,7 +39,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             response.addHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
             filterChain.doFilter(request, response);
         } else {
-            sendErrorResponse(response, probe);
+            sendErrorResponse(response, probe, ipAddress);
         }
     }
 
@@ -48,7 +50,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         }
         return xForwardedForHeader.split(",")[0].trim();
     }
-    private void sendErrorResponse(HttpServletResponse response, ConsumptionProbe probe) throws IOException {
+    private void sendErrorResponse(HttpServletResponse response, ConsumptionProbe probe, String ipAddress) throws IOException {
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         var retryAfter = getValue(probe);
@@ -59,7 +61,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         errorDetails.put("message", "You have exceeded the rate limit of 60 requests per minute. Please wait: " + retryAfter + " seconds before trying again.");
 
         response.addHeader("X-Rate-Limit-Retry-After", String.valueOf(retryAfter));
-
+        log.info("Rate limit exceeded for IP: {}",ipAddress);
         objectMapper.writeValue(response.getWriter(), errorDetails);
     }
 
