@@ -68,8 +68,6 @@ public class SecurityConfig {
                         .requestMatchers(securityPathConfig.publicPathsMatcher()).permitAll()
                         .requestMatchers(securityPathConfig.adminPathsMatcher()).hasRole("ADMIN")
                         .anyRequest().authenticated()
-
-
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
@@ -79,7 +77,7 @@ public class SecurityConfig {
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
                 .addFilterBefore(new RateLimitingFilter(rateLimitingService,objectMapper), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthenticationFilter(), AuthorizationFilter.class);
+                .addFilterAfter(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
